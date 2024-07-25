@@ -76,7 +76,7 @@ class _HomeState extends State<Home> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    Details(foodItem: foodItem),
+                                    Details(item: foodItem),
                               ),
                             );
                           },
@@ -161,9 +161,9 @@ class _HomeState extends State<Home> {
             Axis.horizontal, // Scroll direction should be horizontal
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            categoryButton("pizza", "images/pizza.png", 1, pizza),
+          children: [ 
             categoryButton("icecream", "images/ice-cream.png", 2, icecream),
+            categoryButton("pizza", "images/pizza.png", 1, pizza),
             categoryButton("salad", "images/salad.png", 4, salad),
             categoryButton("burger", "images/burger.png", 3, burger),
           ],
@@ -199,7 +199,7 @@ class _HomeState extends State<Home> {
         });
       },
       child: Container(
-        margin: EdgeInsets.only(right: 20.0),
+        margin: EdgeInsets.only(right: 35.0),
         child: Material(
           elevation: 5.0,
           borderRadius: BorderRadius.circular(10),
@@ -211,8 +211,8 @@ class _HomeState extends State<Home> {
             padding: EdgeInsets.all(8),
             child: Image.asset(
               imagePath,
-              height: 55,
-              width: 55,
+              height: 50,
+              width: 50,
               fit: BoxFit.cover,
               color: isSelected ? Colors.white : Colors.black,
             ),

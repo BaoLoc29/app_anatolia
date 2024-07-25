@@ -1,155 +1,170 @@
 import 'package:flutter/material.dart';
-import 'package:food_app/models/food_item.dart';
-import 'package:food_app/widget/widget_support.dart';
+import 'package:food_app/pages/order.dart';
+import '../models/food_item.dart';
+import '../services/cart_api.dart';
+import '../widget/widget_support.dart';
 
 class Details extends StatefulWidget {
-  final FoodItem foodItem;
+  final FoodItem item;
 
-  const Details({super.key, required this.foodItem});
+  const Details({super.key, required this.item});
 
   @override
   State<Details> createState() => _DetailsState();
 }
 
 class _DetailsState extends State<Details> {
-  int quantity = 1;
+  int _quantity = 1;
+  final CartService _cartService = CartService();
+
+  Future<void> _addToCart() async {
+    try {
+      await _cartService.addToCart(widget.item, _quantity);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Order(item: widget.item, quantity: _quantity),
+        ),
+      );
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text(e.toString()),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final foodItem = widget.foodItem;
-
     return Scaffold(
       body: Container(
         margin: EdgeInsets.only(top: 50.0, left: 20.0, right: 20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GestureDetector(
-              onTap: () {
+            IconButton(
+              icon: Icon(Icons.arrow_back_ios_new_outlined, color: Colors.black),
+              onPressed: () {
                 Navigator.pop(context);
               },
-              child: Icon(
-                Icons.arrow_back_ios_new_outlined,
-                color: Colors.black,
+            ),
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height / 2.5,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.network(
+                  widget.item.imgUrl,
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-            foodItem.imgUrl != null && foodItem.imgUrl!.isNotEmpty
-                ? Image.network(
-                    foodItem.imgUrl!,
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height / 2.5,
-                    fit: BoxFit.cover,
-                  )
-                : Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height / 2.5,
-                    color: Colors.grey,
-                    child: Icon(
-                      Icons.image_not_supported,
-                      size: 100,
-                      color: Colors.white,
-                    ),
-                  ),
             SizedBox(height: 15.0),
             Row(
               children: [
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        foodItem.name ?? 'Unknown',
-                        style: AppWidget.HeadlineTextFeildStyle(),
-                      ),
-                      Text(
-                        foodItem.description ?? 'No description available',
-                        style: AppWidget.boldTextFeildStyle(),
-                      ),
-                    ],
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.item.categoryName,
+                      style: AppWidget.semiBoldTextFeildStyle(),
+                    ),
+                    Text(
+                      widget.item.name,
+                      style: AppWidget.HeadlineTextFeildStyle(),
+                    ),
+                  ],
+                ),
+                Spacer(),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (_quantity > 1) {
+                        _quantity--;
+                      }
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.remove,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-                Expanded(
-                  flex: 1,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          if (quantity > 1) {
-                            setState(() {
-                              quantity--;
-                            });
-                          }
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.orange,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(
-                            Icons.remove,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 20.0),
-                      Text(
-                        quantity.toString(),
-                        style: AppWidget.semiBoldTextFeildStyle(),
-                      ),
-                      SizedBox(width: 20.0),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            quantity++;
-                          });
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.orange,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(
-                            Icons.add,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
+                SizedBox(width: 20.0),
+                Text(
+                  _quantity.toString(),
+                  style: AppWidget.semiBoldTextFeildStyle(),
+                ),
+                SizedBox(width: 20.0),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _quantity++;
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.add,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ],
             ),
-            // SizedBox(height: 20.0),
-            // Text(
-            //   foodItem.description ?? 'No description available',
-            //   maxLines: 3,
-            //   overflow: TextOverflow.ellipsis,
-            //   style: AppWidget.LightTextFeildStyle(),
-            // ),
+            SizedBox(height: 20.0),
+            Text(
+              widget.item.description,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: AppWidget.LightTextFeildStyle(),
+            ),
             SizedBox(height: 30.0),
             Row(
               children: [
                 Text(
-                  "Delivery Time",
+                  'Delivery Time',
                   style: AppWidget.semiBoldTextFeildStyle(),
                 ),
-                SizedBox(width: 25.0),
+                SizedBox(width: 55.0),
                 Icon(
                   Icons.alarm,
                   color: Colors.black54,
                 ),
                 SizedBox(width: 5.0),
                 Text(
-                  "${foodItem.deliveryTime.toString()} min",
+                  '${widget.item.delivery_time.toString()} min',
                   style: AppWidget.semiBoldTextFeildStyle(),
-                )
+                ),
               ],
             ),
             Spacer(),
             Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
+              padding: const EdgeInsets.only(bottom: 40.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -157,71 +172,55 @@ class _DetailsState extends State<Details> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Total Price",
+                        'Total Price',
                         style: AppWidget.semiBoldTextFeildStyle(),
                       ),
                       Text(
-                        "\$${(foodItem.price ?? 0) * quantity}",
+                        '\$${(widget.item.price * _quantity).toString()}',
                         style: AppWidget.HeadlineTextFeildStyle(),
                       ),
                     ],
                   ),
-                  SizedBox(width: 10.0),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        // handle add to cart action
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                            vertical: 12.0,
-                            horizontal: 20.0), // Adjust padding for button size
-                        decoration: BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment
-                              .center, // Center the content horizontally
-                          crossAxisAlignment: CrossAxisAlignment
-                              .center, // Center the content vertically
-                          children: [
-                            Expanded(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment
-                                    .spaceBetween, // Distribute space between text and icon
-                                children: [
-                                  Text(
-                                    "Add to cart",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20.0,
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.all(3),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Icon(
-                                      Icons.shopping_cart_outlined,
-                                      color: Colors.orange,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                  GestureDetector(
+                    onTap: _addToCart,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width / 2,
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            'Add to cart',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.0,
+                              fontFamily: 'Poppins',
                             ),
-                          ],
-                        ),
+                          ),
+                          SizedBox(width: 30.0),
+                          Container(
+                            padding: EdgeInsets.all(3),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.shopping_cart_outlined,
+                              color: Colors.orange,
+                            ),
+                          ),
+                          SizedBox(width: 10.0),
+                        ],
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
