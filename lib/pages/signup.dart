@@ -23,52 +23,36 @@ class _SignUpState extends State<SignUp> {
     final password = _passwordController.text;
 
     try {
-      final response = await ApiService.signUp(name, email, phone, password);
+      final response = await SignUpService.signUp(name, email, phone, password);
 
-      if (response['status'] == 0) {
-        // Đăng ký thành công
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Success'),
-            content: Text(response['message']),
-            actions: [
-              TextButton(
-                onPressed: () {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(response['status'] == 0 ? 'Success' : 'Error'),
+          content: Text(response['message']),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                if (response['status'] == 0) {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => LogIn()),
                   );
-                },
-                child: Text('OK'),
-              ),
-            ],
-          ),
-        );
-      } else {
-        // Đăng ký thất bại
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Error'),
-            content: Text(response['message']),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text('OK'),
-              ),
-            ],
-          ),
-        );
-      }
+                }
+              },
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
     } catch (e) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
           title: Text('Error'),
-          content: Text(e.toString()),
+          content:
+              Text('An unexpected error occurred. Please try again later.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -127,9 +111,7 @@ class _SignUpState extends State<SignUp> {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  SizedBox(
-                    height: 50.0,
-                  ),
+                  SizedBox(height: 50.0),
                   Material(
                     elevation: 5.0,
                     borderRadius: BorderRadius.circular(20),
@@ -143,61 +125,49 @@ class _SignUpState extends State<SignUp> {
                       ),
                       child: Column(
                         children: [
-                          SizedBox(
-                            height: 30.0,
-                          ),
+                          SizedBox(height: 30.0),
                           Text(
                             "Sign up",
                             style: AppWidget.HeadlineTextFeildStyle(),
                           ),
-                          SizedBox(
-                            height: 30.0,
-                          ),
+                          SizedBox(height: 30.0),
                           TextField(
                             controller: _nameController,
                             decoration: InputDecoration(
                               hintText: 'Name',
-                              hintStyle: AppWidget.boldTextFeildStyle(),
+                              hintStyle: AppWidget.semiBoldTextFeildStyle(),
                               prefixIcon: Icon(Icons.person_outline),
                             ),
                           ),
-                          SizedBox(
-                            height: 30.0,
-                          ),
+                          SizedBox(height: 30.0),
                           TextField(
                             controller: _emailController,
                             decoration: InputDecoration(
                               hintText: 'Email',
-                              hintStyle: AppWidget.boldTextFeildStyle(),
+                              hintStyle: AppWidget.semiBoldTextFeildStyle(),
                               prefixIcon: Icon(Icons.email_outlined),
                             ),
                           ),
-                          SizedBox(
-                            height: 30.0,
-                          ),
+                          SizedBox(height: 30.0),
                           TextField(
                             controller: _phoneController,
                             decoration: InputDecoration(
                               hintText: 'Phone',
-                              hintStyle: AppWidget.boldTextFeildStyle(),
+                              hintStyle: AppWidget.semiBoldTextFeildStyle(),
                               prefixIcon: Icon(Icons.phone_outlined),
                             ),
                           ),
-                          SizedBox(
-                            height: 30.0,
-                          ),
+                          SizedBox(height: 30.0),
                           TextField(
                             controller: _passwordController,
                             obscureText: true,
                             decoration: InputDecoration(
                               hintText: 'Password',
-                              hintStyle: AppWidget.boldTextFeildStyle(),
+                              hintStyle: AppWidget.semiBoldTextFeildStyle(),
                               prefixIcon: Icon(Icons.password_outlined),
                             ),
                           ),
-                          SizedBox(
-                            height: 40.0,
-                          ),
+                          SizedBox(height: 40.0),
                           GestureDetector(
                             onTap: _signUp,
                             child: Material(
@@ -224,9 +194,7 @@ class _SignUpState extends State<SignUp> {
                               ),
                             ),
                           ),
-                          SizedBox(
-                            height: 30.0,
-                          ),
+                          SizedBox(height: 30.0),
                           GestureDetector(
                             onTap: () {
                               Navigator.push(

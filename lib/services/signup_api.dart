@@ -1,7 +1,7 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class ApiService {
+class SignUpService {
   static const String _baseUrl =
       'https://vutt94.io.vn/food_order/api/user/register';
 
@@ -11,14 +11,14 @@ class ApiService {
     final response = await http.post(
       url,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: json.encode({
+      body: {
         'name': name,
         'email': email,
         'phone': phone,
         'password': password,
-      }),
+      },
     );
 
     if (response.statusCode == 200) {

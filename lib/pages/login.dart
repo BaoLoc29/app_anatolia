@@ -3,6 +3,7 @@ import 'package:food_app/pages/signup.dart';
 import 'package:food_app/pages/forgotPassword.dart';
 import 'package:food_app/widget/widget_support.dart';
 import 'package:food_app/pages/bottomnav.dart';
+import 'package:food_app/services/login_api.dart';
 
 class LogIn extends StatefulWidget {
   const LogIn({super.key});
@@ -12,6 +13,70 @@ class LogIn extends StatefulWidget {
 }
 
 class _LogInState extends State<LogIn> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  Future<void> _login() async {
+    final email = _emailController.text;
+    final password = _passwordController.text;
+
+    try {
+      final response = await LoginService.login(email, password);
+
+      if (response['status'] == 0) {
+        // Login successful
+        _showSuccessDialog();
+      } else if (response['status'] == 1) {
+        print(response['message']);
+        // Incorrect email or password
+        _showErrorDialog(response['message']);
+      }
+    } catch (e) {
+      _showErrorDialog('An unexpected error occurred. Please try again later.');
+    }
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dismissing by tapping outside
+      builder: (context) => AlertDialog(
+        title: Text('Success'),
+        content: Text('Login successful!'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Close the dialog
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => BottomNav()),
+              );
+            },
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Close the dialog
+            },
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,6 +148,7 @@ class _LogInState extends State<LogIn> {
                             height: 30.0,
                           ),
                           TextField(
+                            controller: _emailController,
                             decoration: InputDecoration(
                                 hintText: 'Email',
                                 hintStyle: AppWidget.boldTextFeildStyle(),
@@ -92,6 +158,7 @@ class _LogInState extends State<LogIn> {
                             height: 30.0,
                           ),
                           TextField(
+                            controller: _passwordController,
                             obscureText: true,
                             decoration: InputDecoration(
                                 hintText: 'Password',
@@ -119,13 +186,7 @@ class _LogInState extends State<LogIn> {
                             height: 80.0,
                           ),
                           GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => BottomNav()),
-                              );
-                            },
+                            onTap: _login,
                             child: Material(
                               elevation: 5.0,
                               borderRadius: BorderRadius.circular(20),
